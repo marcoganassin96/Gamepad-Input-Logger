@@ -12,9 +12,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\cJSON.c" />
+    <ClCompile Include="source\contentevaluator.c" />
     <ClCompile Include="source\recorder.c" />
-  </ItemGroup>  
+  </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="source\contentevaluator.h" />
     <ClInclude Include="source\shared_values.h" />
     <ClInclude Include="source\cJSON.h" />
     <ClInclude Include="source\recorder.h" />
