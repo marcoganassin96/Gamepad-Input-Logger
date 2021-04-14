@@ -13,6 +13,7 @@
   <ItemGroup>
     <ClCompile Include="source\cJSON.c" />
     <ClCompile Include="source\contentevaluator.c" />
+    <ClCompile Include="source\RawInput.c" />
     <ClCompile Include="source\recorder.c" />
   </ItemGroup>
   <ItemGroup>
@@ -83,9 +84,6 @@
       <AdditionalDependencies>hid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="RawInput.c" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
