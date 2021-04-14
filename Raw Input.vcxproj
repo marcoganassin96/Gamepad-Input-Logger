@@ -10,6 +10,9 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="source\shared_values.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{27270C1B-D4A7-4FE2-B87F-A1F40A730FB0}</ProjectGuid>
     <RootNamespace>RawInput</RootNamespace>
