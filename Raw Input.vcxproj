@@ -11,7 +11,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="source\recorder.c" />
+  </ItemGroup>  
+  <ItemGroup>
     <ClInclude Include="source\shared_values.h" />
+    <ClCompile Include="source\recorder.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{27270C1B-D4A7-4FE2-B87F-A1F40A730FB0}</ProjectGuid>
