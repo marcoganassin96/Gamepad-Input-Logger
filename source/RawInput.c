@@ -64,6 +64,10 @@ bool recordingStateJustChanged = false;
 
 clock_t clockStart;
 
+HBITMAP hMapIcon;
+HBITMAP hToggleViewIcon;
+#define PATH_MAX_SIZE 128
+
 void ParseRawInput(PRAWINPUT pRawInput)
 {
 	PHIDP_PREPARSED_DATA pPreparsedData;
@@ -171,11 +175,10 @@ void DrawGraphical(HDC hDC)
 	HBRUSH hOldBrush, hBr;
 	TCHAR  sz[4];
 
-
 	RECT   buttonRect;
-	int buttonRectLeftCorner = 60;
-	int buttonRectBottomCorner = 20;
-	int buttonRectSize = 60;
+	int buttonRectLeftCorner = 130;
+	int buttonRectBottomCorner = 120;
+	int buttonRectSize = 50;
 	buttonRect.left = buttonRectLeftCorner;
 	buttonRect.top = buttonRectBottomCorner;
 	buttonRect.right = buttonRectLeftCorner + buttonRectSize;
@@ -197,24 +200,61 @@ void DrawGraphical(HDC hDC)
 		DeleteObject(hBr);
 	}
 
-	RECT recordingInstructionsRect;
-	recordingInstructionsRect.left = 60;
-	recordingInstructionsRect.right = 60 + 350;
-	recordingInstructionsRect.bottom = 125;
-	recordingInstructionsRect.top = 125 - 30;
+
+	int imagesOffsetH = 30;
+	HDC hdcMem = CreateCompatibleDC(hDC);
+	BITMAP bitmap;
+	HGDIOBJ oldBitmap;
+
+	oldBitmap = SelectObject(hdcMem, hToggleViewIcon);
+	GetObject(hToggleViewIcon, sizeof(bitmap), &bitmap);
+	int tvIconW = bitmap.bmWidth;
+	int tvIconH = bitmap.bmHeight;
+	int tvOffV = 10;
+	BitBlt(hDC, imagesOffsetH, tvOffV, bitmap.bmWidth, bitmap.bmHeight, hdcMem, 0, 0, SRCCOPY);
+
+	oldBitmap = SelectObject(hdcMem, hMapIcon);
+	GetObject(hMapIcon, sizeof(bitmap), &bitmap);
+	int mIconW = bitmap.bmWidth;
+	int mIconH = bitmap.bmHeight;
+	int mIconOffV = 60;
+	BitBlt(hDC, imagesOffsetH, mIconOffV, mIconW, mIconH, hdcMem, 0, 0, SRCCOPY);
+
+	SelectObject(hdcMem, oldBitmap);
+	DeleteDC(hdcMem);
+
+	//font change
+	HFONT hFont = GetStockObject(DEFAULT_GUI_FONT);
+	LOGFONT logfont;
+	GetObject(hFont, sizeof(LOGFONT), &logfont);
+	logfont.lfHeight = -MulDiv(14, GetDeviceCaps(hDC, LOGPIXELSY), 72);
+	HFONT hNewFont = CreateFontIndirect(&logfont);
+	HFONT hOldFont = (HFONT)SelectObject(hDC, hNewFont);
+
+
+	//Recording instructions
+	RECT r_recInstr;
+	r_recInstr.left = imagesOffsetH + tvIconW + 5;
+	r_recInstr.right = r_recInstr.left + 350;
+
+	r_recInstr.top = tvOffV + tvIconH/4;
+	r_recInstr.bottom = r_recInstr.top + tvIconH;
+	
 	TCHAR recordingInstructionsText[64];
-	_stprintf_s(recordingInstructionsText, ARRAY_SIZE(recordingInstructionsText), TEXT("PRESS TOGGLE VIEW TO START/STOP RECORDING"));
+	_stprintf_s(recordingInstructionsText, ARRAY_SIZE(recordingInstructionsText), TEXT(": RECORD"));
+	DrawText(hDC, recordingInstructionsText, -1, &r_recInstr, DT_VCENTER | DT_LEFT);
 
-	DrawText(hDC, recordingInstructionsText, -1, &recordingInstructionsRect, DT_TOP | DT_LEFT);
-
-	RECT quittingInstructionsRect;
-	quittingInstructionsRect.left = 60;
-	quittingInstructionsRect.right = 60 + 300;
-	quittingInstructionsRect.bottom = 160;
-	quittingInstructionsRect.top = 160 - 30;
+	RECT r_quitInstr;
+	r_quitInstr.left = imagesOffsetH + mIconW + 5;
+	r_quitInstr.right = r_quitInstr.left + 300;
+	r_quitInstr.top = mIconOffV + mIconH / 4;
+	r_quitInstr.bottom = r_quitInstr.top + mIconH;
 	TCHAR quittingInstructionsText[64];
-	_stprintf_s(quittingInstructionsText, ARRAY_SIZE(quittingInstructionsText), TEXT("PRESS MAP (FOR 2 SECONDS) TO QUIT"));
-	DrawText(hDC, quittingInstructionsText, -1, &quittingInstructionsRect, DT_TOP | DT_LEFT);
+	_stprintf_s(quittingInstructionsText, ARRAY_SIZE(quittingInstructionsText), TEXT(": QUIT"));
+	DrawText(hDC, quittingInstructionsText, -1, &r_quitInstr, DT_VCENTER | DT_LEFT);
+
+	SelectObject(hDC, hOldFont);
+	DeleteObject(hNewFont);
 }
 
 
@@ -224,6 +264,24 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 	case WM_CREATE:
 		{
+			//load icons
+			TCHAR currentDirectory[64];
+
+			if (!GetCurrentDirectory(PATH_MAX_SIZE, currentDirectory))
+			{
+				ExitProcess(1);
+			}
+
+			TCHAR toggleViewIconPath[PATH_MAX_SIZE];
+			_tcscpy_s(toggleViewIconPath, PATH_MAX_SIZE, currentDirectory);
+			lstrcat(toggleViewIconPath, L"\\images\\toggle_view.bmp");
+			hToggleViewIcon = (HBITMAP)LoadImage(NULL, toggleViewIconPath, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+
+			TCHAR mapIconPath[PATH_MAX_SIZE];
+			_tcscpy_s(mapIconPath, PATH_MAX_SIZE, currentDirectory);			
+			lstrcat(mapIconPath, L"\\images\\map.bmp");
+			hMapIcon = (HBITMAP)LoadImage(NULL, mapIconPath, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+
 			//
 			// Register for joystick devices
 			//
@@ -373,7 +431,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	if(!RegisterClassEx(&wcex))
 		return -1;
 
-	hWnd = CreateWindow(WC_MAINFRAME, TEXT("Joystick using Raw Input API"), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance, NULL);
+	hWnd = CreateWindow(WC_MAINFRAME, TEXT("Joystick using Raw Input API"), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 330, 220, NULL, NULL, hInstance, NULL);
 	UpdateWindow(hWnd);
 	ShowWindow(hWnd, nShowCmd);
 
