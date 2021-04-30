@@ -241,7 +241,7 @@ void DrawGraphical(HDC hDC)
 	r_recInstr.bottom = r_recInstr.top + tvIconH;
 	
 	TCHAR recordingInstructionsText[64];
-	_stprintf_s(recordingInstructionsText, ARRAY_SIZE(recordingInstructionsText), TEXT(": RECORD"));
+	_stprintf_s(recordingInstructionsText, ARRAY_SIZE(recordingInstructionsText), isRecording ? TEXT(": STOP RECORDING") : TEXT(": START RECORDING"));
 	DrawText(hDC, recordingInstructionsText, -1, &r_recInstr, DT_VCENTER | DT_LEFT);
 
 	RECT r_quitInstr;
