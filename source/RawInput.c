@@ -23,6 +23,9 @@
 #include "contentevaluator.h"
 #include "shared_values.h"
 
+#pragma comment(lib, "winmm.lib")
+#include <mmsystem.h>
+
 #define ARRAY_SIZE(x)	(sizeof(x) / sizeof((x)[0]))
 #define WC_MAINFRAME	TEXT("MainFrame")
 #define MAX_BUTTONS		128
@@ -64,9 +67,11 @@ bool recordingStateJustChanged = false;
 
 clock_t clockStart;
 
+#define PATH_MAX_SIZE 128
+TCHAR currentDirectory[64];
+
 HBITMAP hMapIcon;
 HBITMAP hToggleViewIcon;
-#define PATH_MAX_SIZE 128
 
 void ParseRawInput(PRAWINPUT pRawInput)
 {
@@ -265,8 +270,6 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	case WM_CREATE:
 		{
 			//load icons
-			TCHAR currentDirectory[64];
-
 			if (!GetCurrentDirectory(PATH_MAX_SIZE, currentDirectory))
 			{
 				ExitProcess(1);
@@ -442,6 +445,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			if (isRecording)
 			{
 				stopRecorder(recorderIndex);
+
+				TCHAR stopRecorderSoundPath[PATH_MAX_SIZE];
+				_tcscpy_s(stopRecorderSoundPath, PATH_MAX_SIZE, currentDirectory);
+				lstrcat(stopRecorderSoundPath, L"\\sounds\\stop_recording.wav");
+
+				PlaySound(stopRecorderSoundPath, NULL, SND_ASYNC);
+
+				getch();
 			}
 			else
 			{
@@ -452,6 +463,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				CreateDirectoryA("recording", NULL);
 				strftime(fileName, sizeof(fileName), "recording\\recording%Y%m%d%H%M%S.txt", timenow);
 				recorderIndex = startRecorder(fileName);
+
+				TCHAR startRecorderSoundPath[PATH_MAX_SIZE];
+				_tcscpy_s(startRecorderSoundPath, PATH_MAX_SIZE, currentDirectory);
+				lstrcat(startRecorderSoundPath, L"\\sounds\\start_recording.wav");
+
+				PlaySound(startRecorderSoundPath, NULL, SND_ASYNC);
 			}
 			isRecording = !isRecording;
 		}
