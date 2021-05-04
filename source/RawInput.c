@@ -434,7 +434,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	if(!RegisterClassEx(&wcex))
 		return -1;
 
-	hWnd = CreateWindow(WC_MAINFRAME, TEXT("Joystick using Raw Input API"), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 330, 220, NULL, NULL, hInstance, NULL);
+	hWnd = CreateWindow(WC_MAINFRAME, TEXT("Gamepad Input Logger"), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 330, 220, NULL, NULL, hInstance, NULL);
 	UpdateWindow(hWnd);
 	ShowWindow(hWnd, nShowCmd);
 
