@@ -525,7 +525,7 @@ void recordButtons()
 			char* op = bButtonStates[i] ? "START" : "STOP";
 
 			char* row = (char*)malloc((128) * sizeof(char));
-			sprintf(row, "{\"type\": \"BT\", \"id\": %i, \"label\": \"%s\", \"op\": \"%s\", \"time \": %.3f}", i, lab, op, currentTime);
+			sprintf(row, "{\"type\": \"BT\", \"id\": %i, \"label\": \"%s\", \"op\": \"%s\", \"time\": %.3f}", i, lab, op, currentTime);			
 			recordContent(row);
 			free(row);
 		}
@@ -559,7 +559,7 @@ void printAxis()
 			if (bAxisStates[i] && bPreviousAxisStates[i]) op = "CONTINUE";
 
 			char* row = (char*)malloc((128) * sizeof(char));
-			sprintf(row, "{\"type\": \"AX\", \"id\": %i, \"label\": \"%s\", \"op\": \"%s\", \"val\": %ld, \"time \": %.3f}", i, lab, op, axis[i], currentTime);
+			sprintf(row, "{\"type\": \"AX\", \"id\": %i, \"label\": \"%s\", \"op\": \"%s\", \"val\": %ld, \"time\": %.3f}", i, lab, op, axis[i], currentTime);
 			recordContent(row);
 			free(row);
 		}
@@ -583,7 +583,7 @@ void printTriggers()
 		if (bAxisStates[triggersIndex] && bPreviousAxisStates[triggersIndex]) op = "CONTINUE";
 
 		char* row = (char*)malloc((128) * sizeof(char));
-		sprintf(row, "{\"type\": \"AX\", \"id\": %i, \"label\": \"%s\", \"op\": \"%s\", \"val\": %ld, \"time \": %.3f}", triggersIndex, "TRIG", op, axis[triggersIndex], currentTime);
+		sprintf(row, "{\"type\": \"AX\", \"id\": %i, \"label\": \"%s\", \"op\": \"%s\", \"val\": %ld, \"time\": %.3f}", triggersIndex, "TRIG", op, axis[triggersIndex], currentTime);
 		recordContent(row);
 		free(row);
 	}
@@ -606,7 +606,7 @@ void printArrows()
 		if (bAxisStates[arrowIndex] && bPreviousAxisStates[arrowIndex]) op = "CONTINUE";
 
 		char* row = (char*)malloc((128) * sizeof(char));
-		sprintf(row, "{\"type\": \"AX\", \"id\": %i, \"label\": \"%s\", \"op\": \"%s\", \"val\": %ld, \"time \": %.3f}", arrowIndex, "ARR", op, axis[arrowIndex], currentTime);
+		sprintf(row, "{\"type\": \"AX\", \"id\": %i, \"label\": \"%s\", \"op\": \"%s\", \"val\": %ld, \"time\": %.3f}", arrowIndex, "ARR", op, axis[arrowIndex], currentTime);
 		recordContent(row);
 		free(row);
 	}
