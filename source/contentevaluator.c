@@ -190,7 +190,7 @@ void evaluateCacheAndPrintFile(int id)
 	{
 		if (recorderRef->axisWaitingToBeValidatedPointers[i] >= 0)
 		{
-			int newIndex = recorderRef->axisWaitingToBeValidatedPointers[i] - firstUnsafeCacheIndex - 1;
+			int newIndex = recorderRef->axisWaitingToBeValidatedPointers[i] - firstUnsafeCacheIndex;
 			setAxisWaitingToBeValidatedPointer(recorderRef, i, newIndex);
 		}
 	}
