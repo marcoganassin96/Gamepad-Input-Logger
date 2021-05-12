@@ -99,6 +99,8 @@ void cacheContent(recorderStruct* recorderRef, char* content)
 			cacheLineToBeValidated(recorderRef, content, axisIndex, reversalDirection, op);
 		}
 	}
+
+	cJSON_Delete(root);
 }
 
 void cacheValidatedLine(recorderStruct* recorderRef, char* content)
@@ -157,15 +159,18 @@ void evaluateCacheAndPrintFile(int id)
 			strcat(fileNewContent, recorderRef->cache[i]);
 			strcat(fileNewContent, "\n");
 		}
+	}
 
+	for (int i = firstUnsafeCacheIndex; i < recorderRef->cacheSize; ++i)
+	{
 		//remove the cache lines under maxSafeCacheIndex
-		if (i + firstUnsafeCacheIndex < recorderRef->cacheSize)
+		if (i < recorderRef->cacheSize)
 		{
-			setCacheLine(recorderRef, i, recorderRef->cache[i + firstUnsafeCacheIndex]);
+			setCacheLine(recorderRef, i- firstUnsafeCacheIndex, recorderRef->cache[i]);
 
-			bool shoulBeDeleted = recorderRef->cacheLinesToBeDeleted[i + firstUnsafeCacheIndex];
+			bool shoulBeDeleted = recorderRef->cacheLinesToBeDeleted[i];
 
-			setCacheLinesToBeDeleted(recorderRef, i, shoulBeDeleted);
+			setCacheLinesToBeDeleted(recorderRef, i- firstUnsafeCacheIndex, shoulBeDeleted);
 		}
 	}
 
@@ -188,7 +193,7 @@ void evaluateCacheAndPrintFile(int id)
 	{
 		if (recorderRef->axisWaitingToBeValidatedPointers[i] >= 0)
 		{
-			int newIndex = recorderRef->axisWaitingToBeValidatedPointers[i] - firstUnsafeCacheIndex - 1;
+			int newIndex = recorderRef->axisWaitingToBeValidatedPointers[i] - firstUnsafeCacheIndex;
 			setAxisWaitingToBeValidatedPointer(recorderRef, i, newIndex);
 		}
 	}
