@@ -99,6 +99,8 @@ void cacheContent(recorderStruct* recorderRef, char* content)
 			cacheLineToBeValidated(recorderRef, content, axisIndex, reversalDirection, op);
 		}
 	}
+
+	cJSON_Delete(root);
 }
 
 void cacheValidatedLine(recorderStruct* recorderRef, char* content)
