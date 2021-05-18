@@ -614,15 +614,12 @@ void printArrows()
 
 int isAxisMoving(int index)
 {
-	int deadZone = 100;
-	//int minStreaksNumber = 20;
+	int deadZone = 200;
 	int pairIndex = (index % 2 == 0) ? index + 1 : index - 1;
 
 	int result =
 		   (abs(values[index]) < deadZone)
-		//&& (unchangedValuesStreaks[index] >= minStreaksNumber)
 		&& (abs(values[pairIndex]) < deadZone)
-		//&& (unchangedValuesStreaks[pairIndex] >= minStreaksNumber)
 		? 0 : 1;
 
 	return result;
