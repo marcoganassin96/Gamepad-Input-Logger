@@ -39,19 +39,22 @@ void printAxis();
 void printTriggers();
 void printArrows();
 double getSecondsFromStart();
-int isAxisMoving(int index);
+bool isAxisMoving(int firstIndex, int secondIndex);
 
 bool bButtonStates[MAX_BUTTONS];
 bool bPreviousButtonStates[MAX_BUTTONS];
 
 bool bAxisStates[MAX_BUTTONS];
 bool bPreviousAxisStates[MAX_BUTTONS];
+char* labels[4] = { "LV", "LH", "RV", "RH" };
+LONG minAxisVariation = 50;
 
 LONG values[MAX_BUTTONS];
 LONG previousValues[MAX_BUTTONS];
 
 LONG axis[MAX_BUTTONS];
 LONG previousAxis[MAX_BUTTONS];
+int deadZone = 200;
 
 INT  g_NumberOfButtons;
 USHORT capsLength;
@@ -535,31 +538,28 @@ void recordButtons()
 void printAxis()
 {
 	double currentTime = getSecondsFromStart();
-
-	for (int i = 0; i < AXIS_NUM-1; i++)
+	for (int i = 0; i < AXIS_NUM-1; i+=2)
 	{
-		bAxisStates[i] = (isAxisMoving(i) > 0);
+		bAxisStates[i/2] = isAxisMoving(i, i+1);
 
-		axis[i] = bAxisStates[i] ? values[i] : 0;
+		axis[i] = bAxisStates[i/2] ? values[i] : 0;
+		axis[i+1] = bAxisStates[i/2] ? values[i+1] : 0;
 
-		if (previousAxis[i] != axis[i])
+		LONG variationX = previousAxis[i] - axis[i];
+		LONG variationY = previousAxis[i+1] - axis[i+1];
+
+		LONG squaredVariation = variationX * variationX + variationY * variationY;
+		if (squaredVariation > minAxisVariation * minAxisVariation)
 		{
-			char* lab;
-			switch (i)
-			{
-				case 0: lab = "LV"; break;// left stick vertical
-				case 1: lab = "LH"; break;// left stick horizontal
-				case 2: lab = "RV"; break;// right stick vertical
-				case 3:	lab = "RH"; break;// right stick horizontal
-			}
-
 			char* op = "UNDEFINED";
-			if (bAxisStates[i] && !bPreviousAxisStates[i]) op = "START";
-			if (!bAxisStates[i] && bPreviousAxisStates[i]) op = "STOP";
-			if (bAxisStates[i] && bPreviousAxisStates[i]) op = "CONTINUE";
+			if (bAxisStates[i / 2] && !bPreviousAxisStates[i / 2]) op = "START";
+			if (!bAxisStates[i / 2] && bPreviousAxisStates[i / 2]) op = "STOP";
+			if (bAxisStates[i / 2] && bPreviousAxisStates[i / 2]) op = "CONTINUE";
 
-			char* row = (char*)malloc((128) * sizeof(char));
-			sprintf(row, "{\"type\": \"AX\", \"id\": %i, \"label\": \"%s\", \"op\": \"%s\", \"val\": %ld, \"time\": %.3f}", i, lab, op, axis[i], currentTime);
+			char* row = (char*)malloc((256) * sizeof(char));
+			sprintf(row, "{\"type\": \"AX\", \"id\": %i, \"label\": \"%s\", \"op\": \"%s\", \"val\": %ld, \"time\": %.3f}\n{\"type\": \"AX\", \"id\": %i, \"label\": \"%s\", \"op\": \"%s\", \"val\": %ld, \"time\": %.3f}"
+				, i, labels[i], op, axis[i], currentTime
+				, i+1, labels[i+1], op, axis[i+1], currentTime);
 			recordContent(row);
 			free(row);
 		}
@@ -612,20 +612,10 @@ void printArrows()
 	}
 }
 
-int isAxisMoving(int index)
+bool isAxisMoving(int firstIndex, int secondIndex)
 {
-	int deadZone = 100;
-	//int minStreaksNumber = 20;
-	int pairIndex = (index % 2 == 0) ? index + 1 : index - 1;
-
-	int result =
-		   (abs(values[index]) < deadZone)
-		//&& (unchangedValuesStreaks[index] >= minStreaksNumber)
-		&& (abs(values[pairIndex]) < deadZone)
-		//&& (unchangedValuesStreaks[pairIndex] >= minStreaksNumber)
-		? 0 : 1;
-
-	return result;
+	int squaredAxisPosition = (values[firstIndex]) * (values[firstIndex]) + (values[secondIndex]) * (values[secondIndex]);
+	return squaredAxisPosition > deadZone * deadZone;
 }
 
 void initState()
